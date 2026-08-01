@@ -21,9 +21,9 @@ class IBMScoringClient:
         timeout_seconds: int = 60,
     ) -> None:
         if not api_key:
-            raise IBMScoringError("La API key de IBM no está configurada.")
+            raise IBMScoringError("The IBM API key is not configured.")
         if not scoring_url.startswith("https://"):
-            raise IBMScoringError("El endpoint de IBM no es válido.")
+            raise IBMScoringError("The IBM scoring endpoint is not valid.")
 
         self.api_key = api_key
         self.scoring_url = scoring_url
@@ -50,18 +50,18 @@ class IBMScoringClient:
             payload = response.json()
         except requests.RequestException as error:
             raise IBMScoringError(
-                "No fue posible autenticar la solicitud con IBM Cloud."
+                "The request could not be authenticated with IBM Cloud."
             ) from error
         except ValueError as error:
             raise IBMScoringError(
-                "IBM Cloud devolvió una respuesta de autenticación no válida."
+                "IBM Cloud returned an invalid authentication response."
             ) from error
 
         token = payload.get("access_token")
         expires_in = int(payload.get("expires_in", 3600))
 
         if not token:
-            raise IBMScoringError("IBM Cloud no devolvió un token IAM.")
+            raise IBMScoringError("IBM Cloud did not return an IAM token.")
 
         self._access_token = token
         self._token_expires_at = time.time() + max(expires_in - 120, 60)
@@ -96,11 +96,11 @@ class IBMScoringClient:
             payload = response.json()
         except requests.RequestException as error:
             raise IBMScoringError(
-                "El deployment de IBM no pudo procesar la predicción."
+                "The IBM deployment could not process the prediction."
             ) from error
         except ValueError as error:
             raise IBMScoringError(
-                "IBM devolvió una respuesta que no pudo interpretarse."
+                "IBM returned a response that could not be interpreted."
             ) from error
 
         return self._extract_predictions(payload)
@@ -113,7 +113,7 @@ class IBMScoringClient:
             response_values = prediction_block["values"]
         except (KeyError, IndexError, TypeError) as error:
             raise IBMScoringError(
-                "La respuesta de IBM no contiene predicciones."
+                "The IBM response does not contain predictions."
             ) from error
 
         predictions: list[float] = []
@@ -128,7 +128,7 @@ class IBMScoringClient:
 
             if isinstance(value, list):
                 if not value:
-                    raise IBMScoringError("IBM devolvió una predicción vacía.")
+                    raise IBMScoringError("IBM returned an empty prediction.")
                 value = value[0]
 
             predictions.append(float(value))

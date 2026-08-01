@@ -1,47 +1,47 @@
-# Resultados técnicos
+# Technical results
 
-## Dataset CGM
+## CGM dataset
 
-- 64 participantes.
-- 864 lecturas originales por participante.
-- 53,760 registros model-ready.
-- 24 lecturas históricas por observación.
-- 51 características.
-- Horizonte aproximado de 5 minutos.
+- 64 participants
+- 864 original readings per participant
+- 53,760 model-ready observations
+- 24 historical readings per observation
+- 51 engineered features
+- Approximate 5-minute prediction horizon
 
-## División V2
+## V2 participant split
 
-| Conjunto | Participantes | Registros |
+| Dataset | Participants | Observations |
 |---|---:|---:|
-| Entrenamiento | 44 | 36,960 |
-| Validación externa | 10 | 8,400 |
-| Prueba reservada | 10 | 8,400 |
+| Training | 44 | 36,960 |
+| External validation | 10 | 8,400 |
+| Reserved final test | 10 | 8,400 |
 
-La división se realizó por participante para evitar fuga de información.
+The split was performed by participant to reduce information leakage.
 
 ## IBM AutoAI
 
-Modelo seleccionado:
+Selected model:
 
 `Glucose_Profile_V2_Ridge_Model`
 
-| Métrica | Holdout | Cross-validation |
+| Metric | Holdout | Cross-validation |
 |---|---:|---:|
 | RMSE | 0.785 | 0.814 |
 | MAE | 0.617 | 0.627 |
 | R² | 0.998 | 0.998 |
 
-## Validación externa
+## External validation
 
-| Métrica | Resultado |
+| Metric | Result |
 |---|---:|
-| Dentro de 2.5 mg/dL | 99.39% |
-| Dentro de 5 mg/dL | 99.92% |
+| Within 2.5 mg/dL | 99.39% |
+| Within 5 mg/dL | 99.92% |
 | MAE | 0.675 mg/dL |
-| Error absoluto P95 | 1.559 mg/dL |
+| Absolute error P95 | 1.559 mg/dL |
 
-La prueba online con Python envió tres registros al endpoint y recibió una respuesta HTTP 200. Los tres resultados quedaron dentro de 2.5 mg/dL.
+The online Python test sent three records to the endpoint and received an HTTP 200 response. All three demonstration predictions were within 2.5 mg/dL.
 
-## Consideraciones
+## Considerations
 
-La alta precisión se relaciona con el horizonte corto y la autocorrelación de las series CGM. El modelo no representa una herramienta clínica.
+The high performance is associated with the short prediction horizon and strong autocorrelation in CGM time series. This model is not a clinical tool.

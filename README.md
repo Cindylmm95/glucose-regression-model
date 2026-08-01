@@ -1,77 +1,95 @@
 # Glucose Profile V2
 
-Aplicación interactiva para simular una secuencia de glucosa y consultar un modelo de regresión desplegado en IBM Machine Learning.
+[![Live app](https://img.shields.io/badge/Live%20App-Streamlit-6941C6)](https://glucose-profile-predictor.streamlit.app)
+[![Project page](https://img.shields.io/badge/Project%20Page-GitHub%20Pages-3E176F)](https://cindylmm95.github.io/glucose-regression-model/)
 
-El modelo estima la siguiente lectura de un sistema CGM, aproximadamente 5 minutos hacia el futuro, a partir de 24 lecturas históricas.
+Interactive machine learning project that predicts the next CGM glucose reading, approximately 5 minutes into the future.
 
-![Diagrama del proyecto](assets/flowchart.png)
+The project combines time-series feature engineering, IBM AutoAI, IBM Machine Learning deployments, Python API validation and a Streamlit interface.
 
-## Demo
+## Interactive demo
 
-La interfaz permite:
+The public interface allows visitors to:
 
-- Crear escenarios estables, ascendentes, descendentes o variables.
-- Editar una secuencia personalizada de 24 lecturas.
-- Visualizar dos horas de historial.
-- Consultar el deployment online de IBM.
-- Comparar la lectura actual contra la predicción a 5 minutos.
+- Generate stable, rising, falling or rapidly changing glucose simulations.
+- Edit a custom sequence of 24 readings.
+- Visualize a 2-hour history.
+- Request a prediction from the IBM online deployment.
+- Compare the current reading with the 5-minute prediction.
 
-## Evolución
+## Dataset
+
+The final model uses a public continuous glucose monitoring dataset.
+
+- 64 participants
+- 864 original readings per participant
+- 53,760 model-ready observations
+- 24 historical readings per prediction
+- 51 engineered features
+- Approximate 5-minute prediction horizon
+
+Training, validation and final test groups were separated by participant to reduce information leakage.
+
+## Model evolution
 
 ### V1
 
-- Ridge Regression.
-- StandardScaler.
-- Ingeniería manual de 51 características.
-- Validación agrupada por participante.
+- Ridge Regression
+- StandardScaler
+- Manual time-series feature engineering
+- Grouped validation by participant
 
 ### V2
 
-- Entrenamiento en IBM AutoAI.
-- Comparación de 8 pipelines.
-- División independiente por participantes.
-- Batch deployment.
-- Online deployment.
-- Comprobación con Python y respuesta HTTP 200.
+- IBM AutoAI experiment
+- Eight regression pipelines compared
+- Independent participant-level validation
+- Batch deployment
+- Online deployment
+- Python API verification with HTTP 200
 
-## Resultados
+## Selected model
 
-| Métrica | Resultado |
+`Glucose_Profile_V2_Ridge_Model`
+
+| Metric | Result |
 |---|---:|
-| RMSE holdout | 0.785 |
-| RMSE cross-validation | 0.814 |
+| Holdout RMSE | 0.785 |
+| Cross-validation RMSE | 0.814 |
 | R² | 0.998 |
-| MAE externo | 0.675 mg/dL |
-| Dentro de 2.5 mg/dL | 99.39% |
-| Validación cruzada de 10 grupos | 99.50% |
+| External MAE | 0.675 mg/dL |
+| Within 2.5 mg/dL | 99.39% |
+| Grouped 10-fold validation | 99.50% |
 
-La validación externa utilizó 8,400 registros de 10 participantes no incluidos en el entrenamiento.
+The external validation included 8,400 observations from 10 participants excluded from training.
 
-## Arquitectura
+## Architecture
 
 ```text
-Interfaz Streamlit
+GitHub Pages project site
         |
-Ingeniería de características en Python
+Embedded Streamlit interface
         |
-Autenticación IBM Cloud IAM
+Python feature engineering
         |
-IBM Machine Learning Online Deployment
+IBM Cloud IAM authentication
         |
-Predicción y visualización
+IBM Machine Learning online deployment
+        |
+Prediction and visualization
 ```
 
-## Seguridad
+GitHub Pages hosts the static portfolio page. Streamlit Community Cloud runs the Python application and communicates with IBM from the server.
 
-Las credenciales de IBM se administran como secretos privados del servidor.
+## Security
 
-- La API key no se almacena en GitHub.
-- El endpoint no se muestra en la interfaz.
-- El navegador no recibe la API key.
-- Las solicitudes a IBM se realizan desde el backend de Streamlit.
-- El repositorio excluye archivos locales de secretos.
+- The IBM API key is stored in Streamlit secrets.
+- The scoring endpoint is not included in the repository.
+- The browser does not receive the API key.
+- IBM requests are sent from the Streamlit backend.
+- Local secret files are excluded through `.gitignore`.
 
-## Tecnologías
+## Technologies
 
 - Python
 - pandas
@@ -82,30 +100,36 @@ Las credenciales de IBM se administran como secretos privados del servidor.
 - IBM Machine Learning
 - IBM Cloud IAM
 - REST API
+- HTML and CSS
+- GitHub Pages
 
-## Estructura
+## Repository structure
 
 ```text
 app.py
 glucose_features.py
 ibm_client.py
 simulations.py
-scripts/validate_endpoint.py
-data/sample_features.csv
+requirements.txt
+data/
 assets/
 docs/
+    index.html
+    styles.css
+    results.md
+scripts/
 ```
 
-## Limitaciones
+## Limitations
 
-El proyecto es académico y experimental.
+This is an academic and experimental project.
 
-No está diseñado para:
+It is not designed to:
 
-- Diagnosticar diabetes.
-- Sustituir una medición clínica.
-- Calcular dosis de insulina.
-- Recomendar tratamientos.
-- Tomar decisiones médicas.
+- Diagnose diabetes
+- Replace a clinical measurement
+- Calculate insulin doses
+- Recommend treatments
+- Support medical decisions
 
-Se observaron dos errores extremos durante la validación externa. El desempeño también disminuyó durante cambios rápidos de glucosa.
+Two extreme prediction errors were identified during external validation. Performance also decreased during rapid glucose changes.

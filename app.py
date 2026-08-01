@@ -4,7 +4,6 @@ import os
 import time
 from datetime import time as clock_time
 
-import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -27,6 +26,9 @@ LILAC = "#F2ECFF"
 LILAC_SOFT = "#FBF9FF"
 TEXT = "#241B35"
 MUTED = "#6D6479"
+
+PROJECT_PAGE_URL = "https://cindylmm95.github.io/glucose-regression-model/"
+GITHUB_URL = "https://github.com/cindylmm95/glucose-regression-model"
 
 st.markdown(
     f"""
@@ -69,6 +71,21 @@ st.markdown(
             font-size: 0.78rem;
             margin-bottom: 0.8rem;
         }}
+        .hero-links {{
+            display: flex;
+            gap: 0.7rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }}
+        .hero-links a {{
+            text-decoration: none;
+            color: {PURPLE_DARK};
+            font-weight: 700;
+            border: 1px solid #D7C4FF;
+            background: #FFFFFF;
+            padding: 0.55rem 0.85rem;
+            border-radius: 10px;
+        }}
         div[data-testid="stMetric"] {{
             border: 1px solid #E5DAFA;
             border-radius: 18px;
@@ -83,6 +100,33 @@ st.markdown(
             border-radius: 20px;
             padding: 1.2rem 1.3rem;
             background: #FFFFFF;
+        }}
+        .workflow {{
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.65rem;
+            margin: 1rem 0;
+        }}
+        .workflow-step {{
+            border: 1px solid #DCCBFF;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 0.85rem;
+            min-height: 112px;
+        }}
+        .workflow-number {{
+            color: {PURPLE};
+            font-weight: 800;
+            font-size: 0.78rem;
+        }}
+        .workflow-step strong {{
+            display: block;
+            color: {PURPLE_DARK};
+            margin: 0.3rem 0;
+        }}
+        .workflow-step span {{
+            color: {MUTED};
+            font-size: 0.82rem;
         }}
         .small-note {{
             color: {MUTED};
@@ -107,20 +151,29 @@ st.markdown(
             background: {PURPLE_DARK};
             color: white;
         }}
+        @media (max-width: 900px) {{
+            .workflow {{
+                grid-template-columns: 1fr;
+            }}
+        }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 st.markdown(
-    """
+    f"""
     <section class="hero">
         <span class="tag">IBM AutoAI + Python + Streamlit</span>
         <h1>Glucose Profile V2</h1>
         <p>
-            Simulación académica para estimar la siguiente lectura de glucosa
-            de un sistema CGM, aproximadamente 5 minutos hacia el futuro.
+            An academic simulation that estimates the next CGM glucose reading,
+            approximately 5 minutes into the future.
         </p>
+        <div class="hero-links">
+            <a href="{PROJECT_PAGE_URL}" target="_blank">Project page</a>
+            <a href="{GITHUB_URL}" target="_blank">GitHub repository</a>
+        </div>
     </section>
     """,
     unsafe_allow_html=True,
@@ -144,7 +197,7 @@ def get_client() -> IBMScoringClient:
         api_key = read_secret("IBM_API_KEY")
         scoring_url = read_secret("IBM_SCORING_URL")
         if not api_key or not scoring_url:
-            raise IBMScoringError("La conexión privada con IBM no está disponible.")
+            raise IBMScoringError("The private IBM connection is not available.")
         st.session_state["_ibm_client"] = IBMScoringClient(
             api_key=api_key,
             scoring_url=scoring_url,
@@ -158,9 +211,9 @@ def request_allowed() -> tuple[bool, str]:
     request_count = st.session_state.get("_request_count", 0)
 
     if request_count >= 20:
-        return False, "La sesión alcanzó el límite de demostraciones."
+        return False, "This session reached the demonstration request limit."
     if now - last_request < 4:
-        return False, "Espera unos segundos antes de generar otra predicción."
+        return False, "Wait a few seconds before requesting another prediction."
 
     st.session_state["_last_request_at"] = now
     st.session_state["_request_count"] = request_count + 1
@@ -179,7 +232,7 @@ def make_chart(
             x=history_minutes,
             y=readings,
             mode="lines+markers",
-            name="Historial CGM",
+            name="CGM history",
             line={"color": PURPLE, "width": 3},
             marker={"size": 7, "color": PURPLE_LIGHT},
             hovertemplate="%{x} min<br>%{y:.1f} mg/dL<extra></extra>",
@@ -192,7 +245,7 @@ def make_chart(
                 x=[0, 5],
                 y=[readings[-1], prediction],
                 mode="lines+markers",
-                name="Predicción",
+                name="Prediction",
                 line={"color": PURPLE_DARK, "width": 3, "dash": "dot"},
                 marker={"size": [8, 13], "color": [PURPLE, PURPLE_DARK]},
                 hovertemplate="%{x} min<br>%{y:.1f} mg/dL<extra></extra>",
@@ -204,9 +257,9 @@ def make_chart(
         margin={"l": 20, "r": 20, "t": 45, "b": 25},
         paper_bgcolor="#FFFFFF",
         plot_bgcolor="#FFFFFF",
-        title="Historial de 2 horas",
-        xaxis_title="Tiempo relativo",
-        yaxis_title="Glucosa estimada, mg/dL",
+        title="2-hour glucose history",
+        xaxis_title="Relative time",
+        yaxis_title="Estimated glucose, mg/dL",
         legend={"orientation": "h", "y": 1.12, "x": 0},
         hovermode="x unified",
     )
@@ -224,7 +277,7 @@ def predict(readings: list[float], selected_time: clock_time) -> float | None:
     feature_row = build_feature_row(readings, selected_time)
     client = get_client()
 
-    with st.spinner("Consultando el modelo desplegado en IBM..."):
+    with st.spinner("Requesting a prediction from the IBM deployment..."):
         predictions = client.score(
             fields=list(feature_row.keys()),
             values=[list(feature_row.values())],
@@ -237,16 +290,16 @@ def render_result(readings: list[float], prediction: float) -> None:
     change = prediction - current
 
     if change > 1:
-        trend = "Ascendente"
+        trend = "Rising"
     elif change < -1:
-        trend = "Descendente"
+        trend = "Falling"
     else:
-        trend = "Estable"
+        trend = "Stable"
 
     left, middle, right = st.columns(3)
-    left.metric("Glucosa actual", f"{current:.1f} mg/dL")
-    middle.metric("Predicción a 5 min", f"{prediction:.1f} mg/dL", f"{change:+.1f}")
-    right.metric("Tendencia estimada", trend)
+    left.metric("Current glucose", f"{current:.1f} mg/dL")
+    middle.metric("5-minute prediction", f"{prediction:.1f} mg/dL", f"{change:+.1f}")
+    right.metric("Estimated trend", trend)
 
     st.plotly_chart(
         make_chart(readings, prediction),
@@ -256,22 +309,22 @@ def render_result(readings: list[float], prediction: float) -> None:
 
 
 with st.sidebar:
-    st.markdown("### Proyecto")
-    st.write("Modelo V2 de regresión Ridge desarrollado en IBM AutoAI.")
-    st.metric("R² interno", "0.998")
-    st.metric("MAE externo", "0.675 mg/dL")
-    st.metric("Dentro de 2.5 mg/dL", "99.39%")
+    st.markdown("### Project")
+    st.write("V2 Ridge regression model developed with IBM AutoAI.")
+    st.metric("Internal R²", "0.998")
+    st.metric("External MAE", "0.675 mg/dL")
+    st.metric("Within 2.5 mg/dL", "99.39%")
 
     if backend_available():
-        st.success("Modelo IBM conectado")
+        st.success("IBM model connected")
     else:
-        st.warning("Modelo IBM no conectado en este entorno")
+        st.warning("IBM model is not connected in this environment")
 
     st.markdown(
         """
         <p class="small-note">
-            Las lecturas de esta interfaz son simuladas. No se solicitan datos
-            personales ni información médica identificable.
+            All readings in this interface are simulated. The application does
+            not request personal data or identifiable medical information.
         </p>
         """,
         unsafe_allow_html=True,
@@ -279,22 +332,22 @@ with st.sidebar:
 
 
 tab_simulation, tab_manual, tab_project = st.tabs(
-    ["Simulación rápida", "Secuencia personalizada", "Proyecto"]
+    ["Quick simulation", "Custom sequence", "Project"]
 )
 
 with tab_simulation:
-    st.subheader("Simula un comportamiento de glucosa")
+    st.subheader("Simulate a glucose pattern")
 
     control_a, control_b, control_c, control_d = st.columns(4)
 
     with control_a:
         scenario = st.selectbox(
-            "Escenario",
-            ["Estable", "Ascenso gradual", "Descenso gradual", "Variación rápida"],
+            "Scenario",
+            ["Stable", "Gradual rise", "Gradual fall", "Rapid variation"],
         )
     with control_b:
         current_glucose = st.slider(
-            "Glucosa actual",
+            "Current glucose",
             min_value=60,
             max_value=240,
             value=105,
@@ -302,7 +355,7 @@ with tab_simulation:
         )
     with control_c:
         intensity = st.slider(
-            "Intensidad",
+            "Intensity",
             min_value=0.5,
             max_value=1.5,
             value=1.0,
@@ -310,13 +363,13 @@ with tab_simulation:
         )
     with control_d:
         selected_time = st.time_input(
-            "Hora del escenario",
+            "Scenario time",
             value=clock_time(12, 0),
             step=300,
         )
 
     variability = st.slider(
-        "Variabilidad de las lecturas",
+        "Reading variability",
         min_value=0.0,
         max_value=6.0,
         value=1.5,
@@ -332,10 +385,10 @@ with tab_simulation:
     )
 
     metric_a, metric_b, metric_c = st.columns(3)
-    metric_a.metric("Lecturas simuladas", "24")
-    metric_b.metric("Ventana histórica", "2 horas")
+    metric_a.metric("Simulated readings", "24")
+    metric_b.metric("Historical window", "2 hours")
     metric_c.metric(
-        "Cambio en la ventana",
+        "Window change",
         f"{readings[-1] - readings[0]:+.1f} mg/dL",
     )
 
@@ -346,7 +399,7 @@ with tab_simulation:
     )
 
     if st.button(
-        "Generar predicción con IBM",
+        "Generate prediction with IBM",
         type="primary",
         use_container_width=True,
         disabled=not backend_available(),
@@ -364,12 +417,12 @@ with tab_simulation:
 
 
 with tab_manual:
-    st.subheader("Construye una secuencia de 24 lecturas")
-    st.caption("Las filas avanzan desde 115 minutos antes hasta el momento actual.")
+    st.subheader("Build a 24-reading sequence")
+    st.caption("Rows progress from 115 minutes before the current reading to now.")
 
     default_readings = generate_sequence(
         current_glucose=105,
-        scenario="Estable",
+        scenario="Stable",
         intensity=1.0,
         variability=1.0,
         seed=7,
@@ -377,8 +430,8 @@ with tab_manual:
 
     manual_table = pd.DataFrame(
         {
-            "Minuto": list(range(-115, 5, 5)),
-            "Glucosa": default_readings,
+            "Minute": list(range(-115, 5, 5)),
+            "Glucose": default_readings,
         }
     )
 
@@ -387,10 +440,10 @@ with tab_manual:
         hide_index=True,
         use_container_width=True,
         num_rows="fixed",
-        disabled=["Minuto"],
+        disabled=["Minute"],
         column_config={
-            "Minuto": st.column_config.NumberColumn(format="%d min"),
-            "Glucosa": st.column_config.NumberColumn(
+            "Minute": st.column_config.NumberColumn(format="%d min"),
+            "Glucose": st.column_config.NumberColumn(
                 min_value=40.0,
                 max_value=400.0,
                 step=1.0,
@@ -401,13 +454,13 @@ with tab_manual:
     )
 
     custom_time = st.time_input(
-        "Hora de la lectura actual",
+        "Current reading time",
         value=clock_time(12, 0),
         step=300,
         key="manual_time",
     )
 
-    manual_readings = edited_table["Glucosa"].astype(float).tolist()
+    manual_readings = edited_table["Glucose"].astype(float).tolist()
 
     st.plotly_chart(
         make_chart(manual_readings),
@@ -416,7 +469,7 @@ with tab_manual:
     )
 
     if st.button(
-        "Evaluar secuencia personalizada",
+        "Evaluate custom sequence",
         type="primary",
         use_container_width=True,
         disabled=not backend_available(),
@@ -434,30 +487,63 @@ with tab_manual:
 
 
 with tab_project:
-    st.subheader("Resumen del proyecto")
+    st.subheader("Project overview")
+
+    st.markdown(
+        """
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="workflow-number">01</div>
+                <strong>CGM data</strong>
+                <span>64 participants and 53,760 model-ready observations.</span>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-number">02</div>
+                <strong>Feature engineering</strong>
+                <span>24 historical readings and 51 time-series features.</span>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-number">03</div>
+                <strong>IBM AutoAI</strong>
+                <span>Eight regression pipelines compared using RMSE.</span>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-number">04</div>
+                <strong>Deployment</strong>
+                <span>Batch and online deployments in IBM Machine Learning.</span>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-number">05</div>
+                <strong>Validation</strong>
+                <span>External participants, batch scoring and Python API testing.</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     summary_a, summary_b = st.columns([1.15, 0.85])
 
     with summary_a:
         st.markdown(
             """
-            **Objetivo**
+            **Objective**
 
-            Predecir la siguiente lectura de un sistema de monitoreo continuo
-            de glucosa utilizando 24 lecturas históricas y variables temporales.
+            Predict the next CGM reading using 24 historical readings and
+            time-based features.
 
-            **Evolución**
+            **Model evolution**
 
-            - V1: Ridge Regression con ingeniería manual de características.
-            - V2: entrenamiento y comparación de pipelines en IBM AutoAI.
-            - Validación externa con participantes no utilizados en entrenamiento.
-            - Despliegue batch y online en IBM Machine Learning.
-            - Comprobación del endpoint mediante Python.
+            - V1: Ridge Regression with manual feature engineering.
+            - V2: automated pipeline comparison in IBM AutoAI.
+            - External validation with participants excluded from training.
+            - Batch and online deployments in IBM Machine Learning.
+            - Endpoint verification with Python.
 
-            **Tecnologías**
+            **Technologies**
 
             Python, pandas, NumPy, scikit-learn, IBM AutoAI,
-            IBM Machine Learning, REST API y Streamlit.
+            IBM Machine Learning, REST API and Streamlit.
             """
         )
 
@@ -465,30 +551,24 @@ with tab_project:
         st.markdown(
             """
             <div class="result-card">
-                <strong>Resultados principales</strong><br><br>
-                RMSE holdout: 0.785<br>
-                RMSE cross-validation: 0.814<br>
+                <strong>Key results</strong><br><br>
+                Holdout RMSE: 0.785<br>
+                Cross-validation RMSE: 0.814<br>
                 R²: 0.998<br>
-                Validación externa dentro de 2.5 mg/dL: 99.39%<br>
-                Respuesta del endpoint: HTTP 200
+                External validation within 2.5 mg/dL: 99.39%<br>
+                Endpoint response: HTTP 200
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    st.image(
-        "assets/flowchart.png",
-        caption="Flujo general de la Fase III",
-        use_container_width=True,
-    )
-
 
 st.markdown(
     """
     <div class="footer-note">
-        Proyecto académico y experimental. No es una herramienta médica,
-        no diagnostica enfermedades y no debe utilizarse para calcular
-        tratamientos o dosis de insulina.
+        Academic and experimental project. This application is not a medical
+        device, does not diagnose disease and must not be used to determine
+        treatment or insulin dosing.
     </div>
     """,
     unsafe_allow_html=True,

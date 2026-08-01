@@ -16,11 +16,11 @@ def _validate_history(readings: Iterable[float]) -> np.ndarray:
     history = np.asarray(list(readings), dtype=float)
 
     if history.shape != (HISTORY_LENGTH,):
-        raise ValueError("La secuencia debe contener exactamente 24 lecturas.")
+        raise ValueError("The sequence must contain exactly 24 readings.")
     if not np.isfinite(history).all():
-        raise ValueError("La secuencia contiene valores no numéricos.")
+        raise ValueError("The sequence contains non-numeric values.")
     if np.any((history < 40) | (history > 400)):
-        raise ValueError("Las lecturas deben estar entre 40 y 400 mg/dL.")
+        raise ValueError("Readings must remain between 40 and 400 mg/dL.")
 
     return history
 
@@ -60,6 +60,6 @@ def build_feature_row(
         features[f"max{window}"] = float(segment.max())
 
     if len(features) != 51:
-        raise RuntimeError("La ingeniería de características no generó 51 variables.")
+        raise RuntimeError("Feature engineering did not generate 51 variables.")
 
     return features

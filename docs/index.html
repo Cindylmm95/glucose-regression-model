@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Glucose Profile V2 - IBM AutoAI, Python and Streamlit portfolio project.">
+  <meta name="theme-color" content="#6941C6">
+  <title>Glucose Profile V2</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top">Glucose Profile V2</a>
+    <nav aria-label="Primary navigation">
+      <a href="#overview">Overview</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#demo">Demo</a>
+      <a href="#results">Results</a>
+      <a href="https://github.com/cindylmm95/glucose-regression-model" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">IBM AutoAI + Python + Streamlit</span>
+        <h1>Predicting the next CGM glucose reading</h1>
+        <p class="lead">
+          A portfolio project that combines time-series feature engineering,
+          automated model selection, cloud deployment and an interactive simulation.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#demo">Try the embedded demo</a>
+          <a class="button secondary" href="https://glucose-profile-predictor.streamlit.app" target="_blank" rel="noreferrer">Open full app</a>
+        </div>
+      </div>
+
+      <div class="hero-panel" aria-label="Project summary">
+        <div class="metric">
+          <span>R²</span>
+          <strong>0.998</strong>
+          <small>Internal evaluation</small>
+        </div>
+        <div class="metric">
+          <span>MAE</span>
+          <strong>0.675</strong>
+          <small>mg/dL external validation</small>
+        </div>
+        <div class="metric">
+          <span>Within tolerance</span>
+          <strong>99.39%</strong>
+          <small>Within 2.5 mg/dL</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="overview" class="section">
+      <div class="section-heading">
+        <span class="eyebrow">Overview</span>
+        <h2>From CGM history to a 5-minute prediction</h2>
+        <p>
+          The model uses 24 historical glucose readings and engineered time-series
+          features to estimate the next CGM value.
+        </p>
+      </div>
+
+      <div class="cards three">
+        <article class="card">
+          <span class="card-number">01</span>
+          <h3>Participant-level split</h3>
+          <p>Training, validation and test data were separated by participant.</p>
+        </article>
+        <article class="card">
+          <span class="card-number">02</span>
+          <h3>IBM AutoAI</h3>
+          <p>Eight regression pipelines were compared and optimized using RMSE.</p>
+        </article>
+        <article class="card">
+          <span class="card-number">03</span>
+          <h3>Cloud deployment</h3>
+          <p>The selected Ridge model was deployed for batch and online scoring.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="workflow" class="section soft">
+      <div class="section-heading">
+        <span class="eyebrow">Workflow</span>
+        <h2>Project pipeline</h2>
+      </div>
+
+      <div class="workflow">
+        <div class="workflow-step">
+          <span>1</span>
+          <strong>CGM dataset</strong>
+          <small>64 participants</small>
+        </div>
+        <div class="connector">↓</div>
+        <div class="workflow-step">
+          <span>2</span>
+          <strong>Feature engineering</strong>
+          <small>51 model inputs</small>
+        </div>
+        <div class="connector">↓</div>
+        <div class="workflow-step">
+          <span>3</span>
+          <strong>IBM AutoAI</strong>
+          <small>8 pipelines</small>
+        </div>
+        <div class="connector">↓</div>
+        <div class="workflow-step">
+          <span>4</span>
+          <strong>Deployment</strong>
+          <small>Batch and online</small>
+        </div>
+        <div class="connector">↓</div>
+        <div class="workflow-step">
+          <span>5</span>
+          <strong>Validation</strong>
+          <small>Batch and Python API</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" class="section demo-section">
+      <div class="section-heading">
+        <span class="eyebrow">Interactive demo</span>
+        <h2>Test the project</h2>
+        <p>
+          The interface below is hosted by Streamlit Community Cloud and embedded
+          inside this GitHub Pages site.
+        </p>
+      </div>
+
+      <div class="embed-shell">
+        <div class="embed-bar">
+          <div>
+            <strong>Glucose Profile V2</strong>
+            <span>Live IBM-connected simulation</span>
+          </div>
+          <a href="https://glucose-profile-predictor.streamlit.app" target="_blank" rel="noreferrer">Open full screen</a>
+        </div>
+        <iframe
+          title="Glucose Profile V2 interactive Streamlit application"
+          src="https://glucose-profile-predictor.streamlit.app/?embed=true&embed_options=light_theme"
+          loading="lazy"
+          allow="clipboard-read; clipboard-write"
+        ></iframe>
+      </div>
+
+      <p class="mobile-fallback">
+        The embedded view is optimized for larger screens.
+        <a href="https://glucose-profile-predictor.streamlit.app" target="_blank" rel="noreferrer">Open the full app</a>.
+      </p>
+    </section>
+
+    <section id="results" class="section">
+      <div class="section-heading">
+        <span class="eyebrow">Results</span>
+        <h2>Model performance</h2>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-table">
+          <div class="result-row">
+            <span>Holdout RMSE</span>
+            <strong>0.785</strong>
+          </div>
+          <div class="result-row">
+            <span>Cross-validation RMSE</span>
+            <strong>0.814</strong>
+          </div>
+          <div class="result-row">
+            <span>External MAE</span>
+            <strong>0.675 mg/dL</strong>
+          </div>
+          <div class="result-row">
+            <span>External tolerance result</span>
+            <strong>99.39%</strong>
+          </div>
+          <div class="result-row">
+            <span>Python endpoint test</span>
+            <strong>HTTP 200</strong>
+          </div>
+        </div>
+
+        <aside class="note-card">
+          <h3>Important context</h3>
+          <p>
+            Performance is influenced by the short prediction horizon and the
+            autocorrelation of CGM time series. The project is academic and not
+            intended for clinical use.
+          </p>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Built by Cindy Mendoza as an IBM Cloud machine learning portfolio project.</p>
+    <div>
+      <a href="https://github.com/cindylmm95/glucose-regression-model" target="_blank" rel="noreferrer">Source code</a>
+      <a href="https://glucose-profile-predictor.streamlit.app" target="_blank" rel="noreferrer">Live app</a>
+    </div>
+  </footer>
+</body>
+</html>
