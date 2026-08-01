@@ -1,0 +1,27 @@
+# Private credentials
+.streamlit/secrets.toml
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Streamlit
+.streamlit/cache/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Generated local output
+outputs/
+logs/
