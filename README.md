@@ -133,3 +133,9 @@ It is not designed to:
 - Support medical decisions
 
 Two extreme prediction errors were identified during external validation. Performance also decreased during rapid glucose changes.
+
+## Live Project
+
+[View the complete project page](https://cindylmm95.github.io/glucose-regression-model/)
+
+[Open the interactive Streamlit app](https://glucose-profile-predictor.streamlit.app)
